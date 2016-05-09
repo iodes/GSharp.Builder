@@ -13,7 +13,7 @@
             <RowDefinition Height="3*"/>
         </Grid.RowDefinitions>
         
-        <ListBox Grid.Row="0" x:Name="ListBlocks" BorderBrush="{x:Null}"/>
+        <ListBox Grid.Row="0" x:Name="ListBlocks" BorderBrush="{x:Null}" SnapsToDevicePixels="True" UseLayoutRounding="True"/>
         <Border Grid.Row="1" BorderBrush="Black" BorderThickness="0,1,0,0">
             <ListBox x:Name="ListReferences" BorderBrush="{x:Null}"/>
         </Border>
