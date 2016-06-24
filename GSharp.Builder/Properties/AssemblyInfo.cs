@@ -10,9 +10,9 @@ using System.Windows;
 [assembly: AssemblyTitle("GSharp.Builder")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("APEACH")]
 [assembly: AssemblyProduct("GSharp.Builder")]
-[assembly: AssemblyCopyright("Copyright ©  2016")]
+[assembly: AssemblyCopyright("Copyright © APEACH. All rights reserved.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

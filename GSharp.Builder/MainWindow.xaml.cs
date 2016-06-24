@@ -172,7 +172,7 @@ namespace GSharp.Builder
                     {
                         manager = new ExtensionManager();
                         extension = manager.LoadExtension(openDialog.FileName);
-                        if (extension.Commands.Count > 0)
+                        if (extension.Commands.Count > 0 || extension.Controls.Count > 0)
                         {
                             extension.Path = openDialog.FileName;
 
