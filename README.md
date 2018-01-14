@@ -1,4 +1,7 @@
 # GSharp.Builder
+[日本語説明はこちらへ](README.JP.md)  
+[Click here for English Description](README.EN.md)
+
 GSharp의 확장 모듈을 제작하는 프로그램입니다.  
 본 프로그램을 사용하여 확장 모듈을 미리 보거나 생성할 수 있습니다.
 
