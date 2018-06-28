@@ -6,6 +6,7 @@ using GSharp.Packager;
 using Microsoft.Win32;
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -70,36 +71,45 @@ namespace GSharp.Builder
             {
                 try
                 {
-                    var moduleName = Path.GetFileName(extension.Path);
-                    var tempResultPath = Path.Combine(Path.GetTempPath(), $"{moduleName}_{DateTime.Now.Millisecond}");
+                    string title = TextTitle.Text;
+                    string author = TextAuthor.Text;
+                    string summary = TextSummary.Text;
+                    GridLoading.Visibility = Visibility.Visible;
 
-                    Directory.CreateDirectory(tempResultPath);
-                    File.Copy(extension.Path, Path.Combine(tempResultPath, moduleName), true);
-
-                    foreach (var dll in compiler.References)
+                    Task.Run(() =>
                     {
-                        if (File.Exists(dll))
+                        var moduleName = Path.GetFileName(extension.Path);
+                        var tempResultPath = Path.Combine(Path.GetTempPath(), $"{moduleName}_{DateTime.Now.Millisecond}");
+
+                        Directory.CreateDirectory(tempResultPath);
+                        File.Copy(extension.Path, Path.Combine(tempResultPath, moduleName), true);
+
+                        foreach (var dll in compiler.References)
                         {
-                            File.Copy(dll, Path.Combine(tempResultPath, Path.GetFileName(dll)), true);
+                            if (File.Exists(dll))
+                            {
+                                File.Copy(dll, Path.Combine(tempResultPath, Path.GetFileName(dll)), true);
+                            }
                         }
-                    }
 
-                    var ini = new INI(Path.Combine(tempResultPath, $"{Path.GetFileNameWithoutExtension(moduleName)}.ini"));
-                    ini.SetValue("General", "Title", TextTitle.Text);
-                    ini.SetValue("General", "Author", TextAuthor.Text);
-                    ini.SetValue("General", "Summary", TextSummary.Text);
-                    ini.SetValue("Assembly", "File", $@"<%LOCAL%>\{moduleName}");
+                        var ini = new INI(Path.Combine(tempResultPath, $"{Path.GetFileNameWithoutExtension(moduleName)}.ini"));
+                        ini.SetValue("General", "Title", title);
+                        ini.SetValue("General", "Author", author);
+                        ini.SetValue("General", "Summary", summary);
+                        ini.SetValue("Assembly", "File", $@"<%LOCAL%>\{moduleName}");
 
-                    var builder = new PackageBuilder
-                    {
-                        Title = TextTitle.Text,
-                        Author = TextAuthor.Text
-                    };
+                        var builder = new PackageBuilder
+                        {
+                            Title = title,
+                            Author = author
+                        };
 
-                    builder.Add(tempResultPath);
-                    builder.Create(saveDialog.FileName);
+                        builder.Add(tempResultPath);
+                        builder.Create(saveDialog.FileName);
 
-                    MessageBox.Show("성공적으로 확장 모듈을 만들었습니다.", "성공", MessageBoxButton.OK, MessageBoxImage.Information);
+                        Dispatcher.Invoke(() => GridLoading.Visibility = Visibility.Collapsed);
+                        MessageBox.Show("성공적으로 확장 모듈을 만들었습니다.", "성공", MessageBoxButton.OK, MessageBoxImage.Information);
+                    });
                 }
                 catch (Exception ex)
                 {
@@ -121,23 +131,32 @@ namespace GSharp.Builder
                 {
                     try
                     {
-                        manager = new ExtensionManager();
-                        extension = manager.LoadExtension(openDialog.FileName);
-                        if (extension.Commands.Count > 0 || extension.Controls.Count > 0)
-                        {
-                            extension.Path = openDialog.FileName;
+                        GridLoading.Visibility = Visibility.Visible;
 
-                            StackOpen.Visibility = Visibility.Collapsed;
-                            StackResult.Visibility = Visibility.Visible;
-                            LabelResult.Content = $"본 모듈은 {extension.Commands.Count}개의 블럭과 {extension.Controls.Count}개의 컨트롤을 포함하고 있습니다.";
-
-                            compiler = new GCompiler();
-                            compiler.LoadReference(openDialog.FileName);
-                        }
-                        else
+                        Task.Run(() =>
                         {
-                            MessageBox.Show("해당 파일에는 사용 가능한 블럭이 없습니다.\n올바른 확장 파일을 선택해주시기 바랍니다.", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
-                        }
+                            manager = new ExtensionManager();
+                            extension = manager.LoadExtension(openDialog.FileName);
+                            if (extension.Commands.Count > 0 || extension.Controls.Count > 0)
+                            {
+                                extension.Path = openDialog.FileName;
+
+                                Dispatcher.Invoke(() =>
+                                {
+                                    StackOpen.Visibility = Visibility.Collapsed;
+                                    StackResult.Visibility = Visibility.Visible;
+                                    LabelResult.Content = $"본 모듈은 {extension.Commands.Count}개의 블럭과 {extension.Controls.Count}개의 컨트롤을 포함하고 있습니다.";
+                                    GridLoading.Visibility = Visibility.Collapsed;
+                                });
+
+                                compiler = new GCompiler();
+                                compiler.LoadReference(openDialog.FileName);
+                            }
+                            else
+                            {
+                                MessageBox.Show("해당 파일에는 사용 가능한 블럭이 없습니다.\n올바른 확장 파일을 선택해주시기 바랍니다.", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                            }
+                        });
                     }
                     catch (Exception ex)
                     {
