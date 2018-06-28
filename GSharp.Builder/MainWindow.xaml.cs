@@ -2,23 +2,13 @@
 using GSharp.Compile;
 using GSharp.Extension;
 using GSharp.Manager;
-using ICSharpCode.SharpZipLib.Core;
-using ICSharpCode.SharpZipLib.Zip;
+using GSharp.Packager;
 using Microsoft.Win32;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 
 namespace GSharp.Builder
 {
@@ -28,57 +18,10 @@ namespace GSharp.Builder
     public partial class MainWindow : Window
     {
         #region 객체
-        WindowPreview preview;
-        ExtensionManager manager;
-        GExtension extension;
-        GCompiler compiler;
-        #endregion
-
-        #region 내부 함수
-        private void CreateZIP(string TargetFolder, string OutputFileName, int CompressLevel = 3)
-        {
-            FileStream fsOut = File.Create(OutputFileName);
-            ZipOutputStream zipStream = new ZipOutputStream(fsOut);
-
-            zipStream.SetLevel(CompressLevel);
-            string FolderName = TargetFolder;
-            int folderOffset = FolderName.Length + (FolderName.EndsWith("\\") ? 0 : 1);
-
-            CompressFolder(FolderName, zipStream, folderOffset);
-
-            zipStream.IsStreamOwner = true;
-            zipStream.Close();
-        }
-
-        private void CompressFolder(string path, ZipOutputStream zipStream, int folderOffset)
-        {
-            string[] files = Directory.GetFiles(path);
-
-            foreach (string filename in files)
-            {
-                FileInfo fi = new FileInfo(filename);
-
-                string entryName = filename.Substring(folderOffset);
-                entryName = ZipEntry.CleanName(entryName);
-                ZipEntry newEntry = new ZipEntry(entryName);
-                newEntry.DateTime = fi.LastWriteTime;
-                newEntry.Size = fi.Length;
-
-                zipStream.PutNextEntry(newEntry);
-
-                byte[] buffer = new byte[4096];
-                using (FileStream streamReader = File.OpenRead(filename))
-                {
-                    StreamUtils.Copy(streamReader, zipStream, buffer);
-                }
-                zipStream.CloseEntry();
-            }
-            string[] folders = Directory.GetDirectories(path);
-            foreach (string folder in folders)
-            {
-                CompressFolder(folder, zipStream, folderOffset);
-            }
-        }
+        private WindowPreview preview;
+        private ExtensionManager manager;
+        private GExtension extension;
+        private GCompiler compiler;
         #endregion
 
         public MainWindow()
@@ -118,7 +61,7 @@ namespace GSharp.Builder
 
         private void BtnCreate_Click(object sender, RoutedEventArgs e)
         {
-            SaveFileDialog saveDialog = new SaveFileDialog
+            var saveDialog = new SaveFileDialog
             {
                 Filter = "GSharp 확장 모듈 (*.gsx)|*.gsx"
             };
@@ -127,13 +70,13 @@ namespace GSharp.Builder
             {
                 try
                 {
-                    string moduleName = Path.GetFileName(extension.Path);
-                    string tempResultPath = Path.Combine(Path.GetTempPath(), $"{moduleName}_{DateTime.Now.Millisecond}");
+                    var moduleName = Path.GetFileName(extension.Path);
+                    var tempResultPath = Path.Combine(Path.GetTempPath(), $"{moduleName}_{DateTime.Now.Millisecond}");
 
                     Directory.CreateDirectory(tempResultPath);
                     File.Copy(extension.Path, Path.Combine(tempResultPath, moduleName), true);
 
-                    foreach (string dll in compiler.References)
+                    foreach (var dll in compiler.References)
                     {
                         if (File.Exists(dll))
                         {
@@ -141,12 +84,20 @@ namespace GSharp.Builder
                         }
                     }
 
-                    INI ini = new INI(Path.Combine(tempResultPath, $"{Path.GetFileNameWithoutExtension(moduleName)}.ini"));
+                    var ini = new INI(Path.Combine(tempResultPath, $"{Path.GetFileNameWithoutExtension(moduleName)}.ini"));
                     ini.SetValue("General", "Title", TextTitle.Text);
                     ini.SetValue("General", "Author", TextAuthor.Text);
                     ini.SetValue("General", "Summary", TextSummary.Text);
                     ini.SetValue("Assembly", "File", $@"<%LOCAL%>\{moduleName}");
-                    CreateZIP(tempResultPath, saveDialog.FileName);
+
+                    var builder = new PackageBuilder
+                    {
+                        Title = TextTitle.Text,
+                        Author = TextAuthor.Text
+                    };
+
+                    builder.Add(tempResultPath);
+                    builder.Create(saveDialog.FileName);
 
                     MessageBox.Show("성공적으로 확장 모듈을 만들었습니다.", "성공", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
@@ -159,7 +110,7 @@ namespace GSharp.Builder
 
         private void StackOpen_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            OpenFileDialog openDialog = new OpenFileDialog
+            var openDialog = new OpenFileDialog
             {
                 Filter = "라이브러리 파일 (*.dll)|*.dll"
             };

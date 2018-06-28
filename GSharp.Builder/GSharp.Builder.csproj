@@ -54,6 +54,9 @@
     <Reference Include="GSharp.Manager">
       <HintPath>..\..\GSharp.Manager\bin\Debug\GSharp.Manager.dll</HintPath>
     </Reference>
+    <Reference Include="GSharp.Packager">
+      <HintPath>..\..\GSharp.Packager\bin\Debug\GSharp.Packager.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
