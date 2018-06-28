@@ -39,20 +39,20 @@
   <ItemGroup>
     <Reference Include="GSharp.Base, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\DLL\GSharp.Base.dll</HintPath>
+      <HintPath>..\..\GSharp.Base\bin\Debug\GSharp.Base.dll</HintPath>
     </Reference>
     <Reference Include="GSharp.Compile">
-      <HintPath>..\DLL\GSharp.Compile.dll</HintPath>
+      <HintPath>..\..\GSharp.Compile\bin\Debug\GSharp.Compile.dll</HintPath>
     </Reference>
     <Reference Include="GSharp.Extension">
-      <HintPath>..\DLL\GSharp.Extension.dll</HintPath>
+      <HintPath>..\..\GSharp.Extension\bin\Debug\GSharp.Extension.dll</HintPath>
     </Reference>
     <Reference Include="GSharp.Graphic, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\DLL\GSharp.Graphic.dll</HintPath>
+      <HintPath>..\..\GSharp.Graphic\bin\Debug\GSharp.Graphic.dll</HintPath>
     </Reference>
     <Reference Include="GSharp.Manager">
-      <HintPath>..\DLL\GSharp.Manager.dll</HintPath>
+      <HintPath>..\..\GSharp.Manager\bin\Debug\GSharp.Manager.dll</HintPath>
     </Reference>
     <Reference Include="ICSharpCode.SharpZipLib, Version=0.86.0.518, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
       <HintPath>..\packages\SharpZipLib.0.86.0\lib\20\ICSharpCode.SharpZipLib.dll</HintPath>
