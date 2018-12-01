@@ -1,4 +1,4 @@
-﻿using GSharp.Builder.Functions;
+﻿using GSharp.Builder.Utilities;
 using GSharp.Compile;
 using GSharp.Extension;
 using GSharp.Manager;
@@ -25,6 +25,7 @@ namespace GSharp.Builder
         private GCompiler compiler;
         #endregion
 
+        #region 생성자
         public MainWindow()
         {
             InitializeComponent();
@@ -35,7 +36,9 @@ namespace GSharp.Builder
             BtnCreate.Click += BtnCreate_Click;
             StackOpen.MouseLeftButtonUp += StackOpen_MouseLeftButtonUp;
         }
+        #endregion
 
+        #region 버튼 이벤트
         private void BtnCancel_Click(object sender, RoutedEventArgs e)
         {
             TextTitle.Clear();
@@ -57,8 +60,10 @@ namespace GSharp.Builder
             {
                 Owner = this
             };
+
             preview.ShowDialog();
         }
+        #endregion
 
         private void BtnCreate_Click(object sender, RoutedEventArgs e)
         {

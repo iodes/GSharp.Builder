@@ -77,7 +77,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Functions\INI.cs" />
+    <Compile Include="Utilities\INI.cs" />
     <Compile Include="WindowPreview.xaml.cs">
       <DependentUpon>WindowPreview.xaml</DependentUpon>
     </Compile>

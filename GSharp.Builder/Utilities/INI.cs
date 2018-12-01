@@ -1,11 +1,11 @@
 ﻿using System.Text;
 using System.Runtime.InteropServices;
 
-namespace GSharp.Builder.Functions
+namespace GSharp.Builder.Utilities
 {
     internal class INI
     {
-        private string Path;
+        private readonly string Path;
 
         public INI(string Path)
         {
