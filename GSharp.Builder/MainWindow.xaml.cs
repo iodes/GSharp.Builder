@@ -2,7 +2,6 @@
 using GSharp.Compile;
 using GSharp.Extension;
 using GSharp.Manager;
-using GSharp.Packager;
 using Microsoft.Win32;
 using System;
 using System.IO;
@@ -71,27 +70,27 @@ namespace GSharp.Builder
                 Filter = "GSharp 확장 모듈 (*.gsx)|*.gsx"
             };
 
-            if (saveDialog.ShowDialog() == true)
+            if (saveDialog.ShowDialog() == false)
+                return;
+
+            try
             {
-                try
-                {
-                    string title = TextTitle.Text;
-                    string author = TextAuthor.Text;
-                    string summary = TextSummary.Text;
-                    GridLoading.Visibility = Visibility.Visible;
+                string title = TextTitle.Text;
+                string author = TextAuthor.Text;
+                string summary = TextSummary.Text;
+                GridLoading.Visibility = Visibility.Visible;
 
-                    Task.Run(() =>
-                    {
-                        PackageUtility.Create(extension.Path, title, author, summary, saveDialog.FileName, compiler);
-
-                        Dispatcher.Invoke(() => GridLoading.Visibility = Visibility.Collapsed);
-                        MessageBox.Show("성공적으로 확장 모듈을 만들었습니다.", "성공", MessageBoxButton.OK, MessageBoxImage.Information);
-                    });
-                }
-                catch (Exception ex)
+                Task.Run(() =>
                 {
-                    MessageBox.Show("확장 모듈 만들기를 실패하였습니다.\n" + ex.Message, "실패", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
+                    PackageUtility.Create(extension.Path, title, author, summary, saveDialog.FileName, compiler);
+
+                    Dispatcher.Invoke(() => GridLoading.Visibility = Visibility.Collapsed);
+                    MessageBox.Show("성공적으로 확장 모듈을 만들었습니다.", "성공", MessageBoxButton.OK, MessageBoxImage.Information);
+                });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("확장 모듈 만들기를 실패하였습니다.\n" + ex.Message, "실패", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -102,44 +101,41 @@ namespace GSharp.Builder
                 Filter = "라이브러리 파일 (*.dll)|*.dll"
             };
 
-            if (openDialog.ShowDialog() == true)
+            if (openDialog.ShowDialog() == false || !File.Exists(openDialog.FileName))
+                return;
+
+            try
             {
-                if (File.Exists(openDialog.FileName))
+                GridLoading.Visibility = Visibility.Visible;
+
+                Task.Run(() =>
                 {
-                    try
+                    manager = new ExtensionManager();
+                    extension = manager.LoadExtension(openDialog.FileName);
+
+                    if (extension.Commands.Count <= 0 && extension.Controls.Count <= 0)
                     {
-                        GridLoading.Visibility = Visibility.Visible;
-
-                        Task.Run(() =>
-                        {
-                            manager = new ExtensionManager();
-                            extension = manager.LoadExtension(openDialog.FileName);
-                            if (extension.Commands.Count > 0 || extension.Controls.Count > 0)
-                            {
-                                extension.Path = openDialog.FileName;
-
-                                Dispatcher.Invoke(() =>
-                                {
-                                    StackOpen.Visibility = Visibility.Collapsed;
-                                    StackResult.Visibility = Visibility.Visible;
-                                    LabelResult.Content = $"본 모듈은 {extension.Commands.Count}개의 블럭과 {extension.Controls.Count}개의 컨트롤을 포함하고 있습니다.";
-                                    GridLoading.Visibility = Visibility.Collapsed;
-                                });
-
-                                compiler = new GCompiler();
-                                compiler.LoadReference(openDialog.FileName);
-                            }
-                            else
-                            {
-                                MessageBox.Show("해당 파일에는 사용 가능한 블럭이 없습니다.\n올바른 확장 파일을 선택해주시기 바랍니다.", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
-                            }
-                        });
+                        MessageBox.Show("해당 파일에는 사용 가능한 블럭이 없습니다.\n올바른 확장 파일을 선택해주시기 바랍니다.", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
                     }
-                    catch (Exception ex)
+
+                    extension.Path = openDialog.FileName;
+
+                    Dispatcher.Invoke(() =>
                     {
-                        MessageBox.Show("해당 파일은 불러올 수 없습니다.\n" + ex.Message, "오류", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
-                }
+                        StackOpen.Visibility = Visibility.Collapsed;
+                        StackResult.Visibility = Visibility.Visible;
+                        LabelResult.Content = $"본 모듈은 {extension.Commands.Count}개의 블럭과 {extension.Controls.Count}개의 컨트롤을 포함하고 있습니다.";
+                        GridLoading.Visibility = Visibility.Collapsed;
+                    });
+
+                    compiler = new GCompiler();
+                    compiler.LoadReference(openDialog.FileName);
+                });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("해당 파일은 불러올 수 없습니다.\n" + ex.Message, "오류", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
         #endregion
