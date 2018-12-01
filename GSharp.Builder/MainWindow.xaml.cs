@@ -63,7 +63,6 @@ namespace GSharp.Builder
 
             preview.ShowDialog();
         }
-        #endregion
 
         private void BtnCreate_Click(object sender, RoutedEventArgs e)
         {
@@ -83,34 +82,7 @@ namespace GSharp.Builder
 
                     Task.Run(() =>
                     {
-                        var moduleName = Path.GetFileName(extension.Path);
-                        var tempResultPath = Path.Combine(Path.GetTempPath(), $"{moduleName}_{DateTime.Now.Millisecond}");
-
-                        Directory.CreateDirectory(tempResultPath);
-                        File.Copy(extension.Path, Path.Combine(tempResultPath, moduleName), true);
-
-                        foreach (var dll in compiler.References)
-                        {
-                            if (File.Exists(dll))
-                            {
-                                File.Copy(dll, Path.Combine(tempResultPath, Path.GetFileName(dll)), true);
-                            }
-                        }
-
-                        var ini = new INI(Path.Combine(tempResultPath, $"{Path.GetFileNameWithoutExtension(moduleName)}.ini"));
-                        ini.SetValue("General", "Title", title);
-                        ini.SetValue("General", "Author", author);
-                        ini.SetValue("General", "Summary", summary);
-                        ini.SetValue("Assembly", "File", $@"<%LOCAL%>\{moduleName}");
-
-                        var builder = new PackageBuilder
-                        {
-                            Title = title,
-                            Author = author
-                        };
-
-                        builder.Add(tempResultPath);
-                        builder.Create(saveDialog.FileName);
+                        PackageUtility.Create(extension.Path, title, author, summary, saveDialog.FileName, compiler);
 
                         Dispatcher.Invoke(() => GridLoading.Visibility = Visibility.Collapsed);
                         MessageBox.Show("성공적으로 확장 모듈을 만들었습니다.", "성공", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -170,5 +142,6 @@ namespace GSharp.Builder
                 }
             }
         }
+        #endregion
     }
 }
